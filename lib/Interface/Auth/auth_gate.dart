@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imprup/Interface/Auth/login_screen.dart';
+import 'package:imprup/Interface/Perusahaan%20UI/navbar_company.dart';
+import 'package:imprup/Interface/Talenta%20UI/navbar.dart';
 import 'package:imprup/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -44,15 +46,15 @@ class AuthGate extends StatelessWidget {
             }
 
             final userRole = roleSnapshot.data;
-            
+
             // Navigasi berdasarkan Role
             if (userRole == 'Talenta') {
-              return const HomeScreen();
+              return const Navbar();
             } else if (userRole == 'Perusahaan') {
-              return const CompanyHomeScreen();
+              return const NavbarCompany();
             } else {
               // Default fallback
-              return const LoginScreen(); 
+              return const LoginScreen();
             }
           },
         );
