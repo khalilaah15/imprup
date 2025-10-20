@@ -15,7 +15,8 @@ class _CreateJobPageState extends State<CreateJobPage> {
   // Basic info
   final _titleController = TextEditingController();
   final _categoryController = TextEditingController();
-  final _budgetController = TextEditingController();
+  final _budgetMinController = TextEditingController();
+  final _budgetMaxController = TextEditingController();
   DateTime? _deadline;
 
   // Job details
@@ -29,7 +30,8 @@ class _CreateJobPageState extends State<CreateJobPage> {
   void dispose() {
     _titleController.dispose();
     _categoryController.dispose();
-    _budgetController.dispose();
+    _budgetMinController.dispose();
+    _budgetMaxController.dispose();
     _jobDescriptionController.dispose();
     for (var c in _tasksControllers) {
       c.dispose();
@@ -40,21 +42,10 @@ class _CreateJobPageState extends State<CreateJobPage> {
     super.dispose();
   }
 
-  void _addTaskField() {
-    setState(() => _tasksControllers.add(TextEditingController()));
-  }
-
-  void _removeTaskField(int index) {
-    setState(() => _tasksControllers.removeAt(index));
-  }
-
-  void _addQualificationField() {
-    setState(() => _qualificationsControllers.add(TextEditingController()));
-  }
-
-  void _removeQualificationField(int index) {
-    setState(() => _qualificationsControllers.removeAt(index));
-  }
+  void _addTaskField() => setState(() => _tasksControllers.add(TextEditingController()));
+  void _removeTaskField(int index) => setState(() => _tasksControllers.removeAt(index));
+  void _addQualificationField() => setState(() => _qualificationsControllers.add(TextEditingController()));
+  void _removeQualificationField(int index) => setState(() => _qualificationsControllers.removeAt(index));
 
   Future<void> _submitJob() async {
     if (!_formKey.currentState!.validate()) return;
@@ -66,15 +57,13 @@ class _CreateJobPageState extends State<CreateJobPage> {
     try {
       await supabase.from('projects').insert({
         'company_id': user!.id,
-        'title': _titleController.text,
-        'description': _jobDescriptionController.text,
-        'category': _categoryController.text,
-        'budget': double.tryParse(_budgetController.text),
+        'title': _titleController.text.trim(),
+        'description': _jobDescriptionController.text.trim(),
+        'category': _categoryController.text.trim(),
+        'skills': _tasksControllers.map((c) => c.text.trim()).toList(), 
+        'budget_min': double.tryParse(_budgetMinController.text),
+        'budget_max': double.tryParse(_budgetMaxController.text),
         'deadline': _deadline?.toIso8601String(),
-        'job_description': _jobDescriptionController.text,
-        'job_tasks': _tasksControllers.map((c) => c.text).toList(),
-        'job_qualifications':
-            _qualificationsControllers.map((c) => c.text).toList(),
       });
 
       if (mounted) {
@@ -84,9 +73,9 @@ class _CreateJobPageState extends State<CreateJobPage> {
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal membuat lowongan: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal membuat lowongan: $e')),
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -130,8 +119,7 @@ class _CreateJobPageState extends State<CreateJobPage> {
                           vertical: 10.h,
                         ),
                       ),
-                      validator:
-                          (v) => v!.isEmpty ? 'Isi poin ${index + 1}' : null,
+                      validator: (v) => v!.isEmpty ? 'Isi poin ${index + 1}' : null,
                     ),
                   ),
                   SizedBox(width: 8.w),
@@ -179,7 +167,6 @@ class _CreateJobPageState extends State<CreateJobPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== Basic Information =====
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Judul Lowongan'),
@@ -191,10 +178,24 @@ class _CreateJobPageState extends State<CreateJobPage> {
                 decoration: const InputDecoration(labelText: 'Kategori'),
               ),
               SizedBox(height: 12.h),
-              TextFormField(
-                controller: _budgetController,
-                decoration: const InputDecoration(labelText: 'Budget (Rp)'),
-                keyboardType: TextInputType.number,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _budgetMinController,
+                      decoration: const InputDecoration(labelText: 'Budget Minimum (Rp)'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _budgetMaxController,
+                      decoration: const InputDecoration(labelText: 'Budget Maksimum (Rp)'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 12.h),
               ListTile(
@@ -216,8 +217,6 @@ class _CreateJobPageState extends State<CreateJobPage> {
                 },
               ),
               Divider(height: 30.h, thickness: 1),
-
-              // ===== Job Description =====
               Text(
                 'Deskripsi Pekerjaan',
                 style: TextStyle(
@@ -236,12 +235,8 @@ class _CreateJobPageState extends State<CreateJobPage> {
                   ),
                 ),
                 maxLines: 4,
-                validator:
-                    (v) =>
-                        v!.isEmpty ? 'Deskripsi pekerjaan wajib diisi' : null,
+                validator: (v) => v!.isEmpty ? 'Deskripsi pekerjaan wajib diisi' : null,
               ),
-
-              // ===== Dynamic Lists =====
               _buildDynamicFieldList(
                 title: 'Hal-hal yang perlu dilakukan',
                 controllers: _tasksControllers,
@@ -254,30 +249,25 @@ class _CreateJobPageState extends State<CreateJobPage> {
                 onAdd: _addQualificationField,
                 onRemove: _removeQualificationField,
               ),
-
               SizedBox(height: 30.h),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _submitJob,
-                  icon:
-                      _isLoading
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.save),
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save),
                   label: Text(
                     _isLoading ? 'Menyimpan...' : 'Simpan Lowongan',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1565C0),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24.w,
-                      vertical: 14.h,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),

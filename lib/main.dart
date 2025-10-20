@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:imprup/Interface/Auth/auth_gate.dart';
 import 'package:imprup/Interface/Auth/login_screen.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const String supabaseUrl = 'https://ztvzdzjzttvmsoyzgfij.supabase.co';
@@ -12,6 +14,8 @@ final supabase = Supabase.instance.client;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
+  Intl.defaultLocale = 'id_ID';
 
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
@@ -23,21 +27,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Inisialisasi ScreenUtil di sini
     return ScreenUtilInit(
-      designSize: const Size(360, 690), // Ukuran desain default Anda
+      designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
           title: 'ImprUp',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            primarySwatch: Colors.green,
-            fontFamily: 'Poppins',
-          ),
-          // AuthGate akan menentukan apakah user harus ke Login atau Home
-          home: const AuthGate(), 
+          home: const AuthGate(),
         );
       },
     );
