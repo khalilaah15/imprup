@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:imprup/Interface/Talenta%20UI/Home/home_screen.dart';
+import 'package:imprup/Interface/Talenta%20UI/Job/my_applications_screen.dart';
 import 'package:imprup/Interface/Talenta%20UI/Profile/profile_screen.dart';
+import 'package:imprup/Interface/Talenta%20UI/chat/talent_chat_list_screen.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -19,8 +21,8 @@ class _NavbarState extends State<Navbar> {
     super.initState();
     pages = [
       const HomeScreen(),
-      const Center(child: Text('Chat Screen')), 
-      const Center(child: Text('Job/Project List')), 
+      const TalentChatListPage(),
+      const MyApplicationsPage(),
       const ProfileScreen(),
     ];
   }

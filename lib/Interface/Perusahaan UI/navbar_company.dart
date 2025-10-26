@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:imprup/Interface/Perusahaan%20UI/Apply/applications_screen.dart';
 import 'package:imprup/Interface/Perusahaan%20UI/Home/company_home_screen.dart';
 import 'package:imprup/Interface/Perusahaan%20UI/Profile/profile_company_screen.dart';
+import 'package:imprup/Interface/Perusahaan%20UI/chat/company_chat_list_screen.dart';
 import 'package:imprup/Interface/Talenta%20UI/Home/home_screen.dart';
 import 'package:imprup/Interface/Talenta%20UI/Profile/profile_screen.dart';
 
@@ -21,8 +23,8 @@ class _NavbarCompanyState extends State<NavbarCompany> {
     super.initState();
     pages = [
       const CompanyHomeScreen(),
-      const Center(child: Text('Chat Screen')),
-      const Center(child: Text('Job/Project List')),
+      const CompanyChatListPage(),
+      const ApplicantsPage(),
       const CompanyProfileScreen(),
     ];
   }

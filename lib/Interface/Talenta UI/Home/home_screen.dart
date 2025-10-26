@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:imprup/Interface/Auth/auth_gate.dart';
+import 'package:imprup/Interface/Talenta%20UI/Job/job_detail_screen.dart';
 import 'package:imprup/Interface/Talenta%20UI/Profile/edit_profile_screen.dart';
 import 'package:imprup/Interface/Talenta%20UI/Profile/profile_screen.dart';
 import 'package:imprup/models/profile_model.dart';
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final jobRes = await supabase
           .from('projects')
           .select(
-            'id, title, description, category, deadline, budget_min, budget_max, status, profiles(full_name, company_category, photo_profile)',
+            'id, title, description, category, deadline, budget_min, budget_max, status, company_id, profiles(full_name, company_category, photo_profile)',
           )
           .eq('status', 'Sedang Dibuka')
           .order('created_at', ascending: false);
@@ -120,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(height: 40.h),
                           _buildProfileCard(),
                           SizedBox(height: 20.h),
                           _buildStatsSection(),
@@ -395,7 +397,8 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildActionButton(
                 Icons.edit_outlined,
                 'Edit Profil',
-                const Color(0xFF1565C0), () {}
+                const Color(0xFF1565C0),
+                () {},
               ),
               _buildActionButton(
                 Icons.folder_outlined,
@@ -540,8 +543,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return InkWell(
       onTap: () {
-        // Navigate to job detail
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => JobDetailPage(job: job)),
+        );
       },
+
       child: Container(
         margin: EdgeInsets.only(bottom: 16.h),
         padding: EdgeInsets.all(16.w),
